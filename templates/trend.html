@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-chart-line"></i> Trend Analysis</h2>
+    <a href="{{ url_for('home') }}" class="btn-primary"
+        style="background: transparent; border: 1px solid var(--border);">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+</div>
+
+<div class="analytics-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+    <!-- 1. Plot (Line Chart) -->
+    <div class="stat-card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Yearly Trend (Line Plot)</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- 2. Stick (Vertical Bar Chart) -->
+    <div class="stat-card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Yearly Cases (Stick/Bar)</h3>
+        <canvas id="stickChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    // 1. Line Plot
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ years | tojson }},
+        datasets: [{
+            label: 'Total Cases',
+            data: {{ cases_per_year | tojson }},
+        borderColor: '#ec4899',
+        backgroundColor: 'rgba(236, 72, 153, 0.2)',
+        tension: 0.4,
+        fill: true
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // 2. Stick (Vertical Bar)
+    new Chart(document.getElementById('stickChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ years | tojson }},
+        datasets: [{
+            label: 'Total Cases',
+            data: {{ cases_per_year | tojson }},
+        backgroundColor: '#34d399',
+        borderRadius: 4,
+        barThickness: 20 
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+{% endblock %}

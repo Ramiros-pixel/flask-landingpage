@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-chart-line"></i> Analytics & Trends</h2>
+    <a href="{{ url_for('home') }}" class="btn-primary"
+        style="background: transparent; border: 1px solid var(--border);">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+</div>
+
+<div class="analytics-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+    <!-- 1. Plot (Line Chart) - Yearly Trend -->
+    <div class="stat-card" id="trend">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Yearly Trend (Line Plot)</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- 2. Stick (Vertical Bar Chart) - Yearly Trend -->
+    <div class="stat-card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Yearly Cases (stick/bar)</h3>
+        <canvas id="stickChart"></canvas>
+    </div>
+
+    <!-- 3. Horizontal Bar Chart - Top Regions -->
+    <div class="stat-card" id="regional">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Top 10 Regions (Horizontal Bar)</h3>
+        <canvas id="horizontalBarChart"></canvas>
+    </div>
+
+    <!-- 4. Pie Chart - Distribution -->
+    <div class="stat-card">
+        <h3 style="margin-bottom: 1.5rem; text-align: center;">Distribution (Top 5 vs Others)</h3>
+        <div style="width: 70%; margin: 0 auto;">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    // 1. Line Plot
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ years | tojson }},
+        datasets: [{
+            label: 'Total Cases',
+            data: {{ cases_per_year | tojson }},
+        borderColor: '#ec4899',
+        backgroundColor: 'rgba(236, 72, 153, 0.2)',
+        tension: 0.4,
+        fill: true
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // 2. Stick (Vertical Bar)
+    new Chart(document.getElementById('stickChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ years | tojson }},
+        datasets: [{
+            label: 'Total Cases',
+            data: {{ cases_per_year | tojson }},
+        backgroundColor: '#34d399',
+        borderRadius: 4,
+        barThickness: 20 // Make them look like "sticks"
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // 3. Horizontal Bar
+    new Chart(document.getElementById('horizontalBarChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ region_names | tojson }},
+        datasets: [{
+            label: 'Total Cases',
+            data: {{ region_totals | tojson }},
+        backgroundColor: '#818cf8',
+        borderRadius: 4
+            }]
+        },
+        options: {
+        indexAxis: 'y', // This makes it horizontal
+        responsive: true,
+        scales: { x: { beginAtZero: true } }
+    }
+    });
+
+    // 4. Pie Chart
+    new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ pie_labels | tojson }},
+        datasets: [{
+            data: {{ pie_data | tojson }},
+        backgroundColor: [
+            '#f472b6', '#818cf8', '#34d399', '#fbbf24', '#f87171', '#94a3b8'
+        ],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+    });
+</script>
+{% endblock %}
